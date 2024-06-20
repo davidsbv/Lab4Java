@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class CarController {
@@ -42,6 +39,22 @@ public class CarController {
         } catch (Exception e){
             log.error("Error while adding new car");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("get-car/{id}")
+    public ResponseEntity<?> getCarById(@PathVariable Integer id){
+
+        // Se busca la id solicitada. Si existe se devuelve la información del coche. Si no devuelve mensaje de error.
+        Car car = carService.getCarById(id);
+        if (car != null){
+            log.info("Car info loaded");
+            CarDTO carDTO = CarDTOMapper.INSTANCE.carToCarDTO(car);
+            return ResponseEntity.ok(carDTO);
+        }
+        else {
+            log.error("Id does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car not found");
         }
     }
 }

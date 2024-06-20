@@ -59,7 +59,10 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public Car getCarById(Integer id) {
-        return null;
+
+        Optional<CarEntity> carEntityOptional = carRepository.findById(id);
+
+        return carEntityOptional.map(CarEntityMapper.INSTANCE::carEntityToCar).orElse(null);
     }
 
     @Override
