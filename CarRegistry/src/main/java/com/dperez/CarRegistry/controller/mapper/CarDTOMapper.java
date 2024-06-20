@@ -11,5 +11,5 @@ public interface CarDTOMapper {
     CarDTOMapper INSTANCE = Mappers.getMapper(CarDTOMapper.class);
 
     CarDTO carToCarDTO(Car car);
-    Car carDTOToCarEntity(CarDTO carDTO);
+    Car carDTOToCar(CarDTO carDTO);
 }
