@@ -9,7 +9,7 @@ public interface CarService {
 
     Car addCar(Car car) throws DataIntegrityViolationException;
     Car getCarById(Integer id);
-    Car updateCar(Integer id, Car car);
-    void deleteCar(Integer id);
+    Car updateCarById(Integer id, Car car);
+    void deleteCarById(Integer id);
     LinkedList<Car> getAllCars();
 }

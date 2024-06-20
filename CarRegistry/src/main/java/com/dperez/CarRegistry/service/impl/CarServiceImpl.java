@@ -60,18 +60,45 @@ public class CarServiceImpl implements CarService {
     @Override
     public Car getCarById(Integer id) {
 
+        // Búsqueda de car por id
         Optional<CarEntity> carEntityOptional = carRepository.findById(id);
 
+        // Si se encuentra devuelve el objeto car. En caso contrario devuelve null.
         return carEntityOptional.map(CarEntityMapper.INSTANCE::carEntityToCar).orElse(null);
     }
 
     @Override
-    public Car updateCar(Integer id, Car car) {
-        return null;
+    public Car updateCarById(Integer id, Car car) throws IllegalArgumentException {
+
+        // Verifica si la Marca del objeto Car existe
+        Optional<BrandEntity> brandEntityOptional = brandRepository.findByNameIgnoreCase(car.getBrand());
+
+        if (brandEntityOptional.isEmpty()){
+            throw new IllegalArgumentException("Brand with name " + car.getBrand() + " does not exist.");
+        }
+
+        // Verifica si la Id existe. Lanza excepción en caso negativo. En caso afirmativo actualiza los datos
+        if(id != null && !carRepository.existsById(id)){
+           throw new IllegalArgumentException("Id " + id + " does not exist.");
+        }
+        else {
+            // Se obtiene la BrandEntity existente y se asocia a la carEntity a actualizar
+            BrandEntity brandEntity = brandEntityOptional.get();
+            log.info("Marca " + brandEntity.toString() + " encontrada");
+            CarEntity carEntity = CarEntityMapper.INSTANCE.carToCarEntity(car);
+            // Seteo de la id y la marca
+            carEntity.setId(id);
+            carEntity.setBrand(brandEntity);
+
+            // Actualiza los datos y devuelve el objeto actualizado.
+            CarEntity updatedCarEntity = carRepository.save(carEntity);
+            return CarEntityMapper.INSTANCE.carEntityToCar(updatedCarEntity);
+        }
+
     }
 
     @Override
-    public void deleteCar(Integer id) {
+    public void deleteCarById(Integer id) {
 
     }
 

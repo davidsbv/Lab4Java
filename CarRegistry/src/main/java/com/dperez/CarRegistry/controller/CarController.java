@@ -7,7 +7,6 @@ import com.dperez.CarRegistry.service.model.Car;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,7 @@ public class CarController {
         try {
             // Se convierte carDTO a Car y se utiliza en la llmada al método addCar.
             // Cuando se guarda se devuelve en newCarDTO  y se muestra la respuesta
-            Car car = CarDTOMapper.INSTANCE.carDTOToCarEntity(carDTO);
+            Car car = CarDTOMapper.INSTANCE.carDTOToCar(carDTO);
             Car newCar = carService.addCar(car);
             CarDTO newCarDTO = CarDTOMapper.INSTANCE.carToCarDTO(newCar);
             log.info("New Car added");
@@ -56,5 +55,25 @@ public class CarController {
             log.error("Id does not exist");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car not found");
         }
+    }
+
+    @PutMapping("update-car/{id}")
+        public ResponseEntity<?> updateCarById(@PathVariable Integer id, @RequestBody CarDTO carDto){
+
+        try {
+            // carDTO a Car y llamada al método updateCarById
+            Car car = CarDTOMapper.INSTANCE.carDTOToCar(carDto);
+            Car carToUpdate = carService.updateCarById(id, car);
+            CarDTO carUpdated = CarDTOMapper.INSTANCE.carToCarDTO(carToUpdate);
+            return ResponseEntity.ok(carUpdated);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
+        } catch (Exception e){
+            log.error("Error while updating car");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
     }
 }
