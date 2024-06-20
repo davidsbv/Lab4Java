@@ -7,6 +7,7 @@ import com.dperez.CarRegistry.repository.entity.CarEntity;
 import com.dperez.CarRegistry.repository.mapper.CarEntityMapper;
 import com.dperez.CarRegistry.service.CarService;
 import com.dperez.CarRegistry.service.model.Car;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,11 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class CarServiceImpl implements CarService {
 
-    private static final Logger log = LoggerFactory.getLogger(CarServiceImpl.class);
+  //  private static final Logger log = LoggerFactory.getLogger(CarServiceImpl.class);
     @Autowired
     private CarRepository carRepository;
 
@@ -98,8 +100,14 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public void deleteCarById(Integer id) {
+    public void deleteCarById(Integer id) throws IllegalArgumentException {
 
+        if(id != null && carRepository.existsById(id)){
+            carRepository.deleteById(id);
+        }
+        else {
+            throw new IllegalArgumentException("Car not found with Id: " + id);
+        }
     }
 
     @Override

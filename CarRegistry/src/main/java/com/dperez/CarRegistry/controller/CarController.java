@@ -4,6 +4,7 @@ import com.dperez.CarRegistry.controller.dtos.CarDTO;
 import com.dperez.CarRegistry.controller.mapper.CarDTOMapper;
 import com.dperez.CarRegistry.service.CarService;
 import com.dperez.CarRegistry.service.model.Car;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
+@RequestMapping("/cars")
 public class CarController {
 
-    private static final Logger log = LoggerFactory.getLogger(CarController.class);
+   // private static final Logger log = LoggerFactory.getLogger(CarController.class);
     @Autowired
     private CarService carService;
 
@@ -61,12 +64,16 @@ public class CarController {
         public ResponseEntity<?> updateCarById(@PathVariable Integer id, @RequestBody CarDTO carDto){
 
         try {
-            // carDTO a Car y llamada al método updateCarById
+            // Mapear carDTO a Car y llamada al método updateCarById
             Car car = CarDTOMapper.INSTANCE.carDTOToCar(carDto);
             Car carToUpdate = carService.updateCarById(id, car);
+
+            // Mapear Car a CarDTO y devolver CarDTO actualizado
             CarDTO carUpdated = CarDTOMapper.INSTANCE.carToCarDTO(carToUpdate);
+            log.info("Car updated");
             return ResponseEntity.ok(carUpdated);
-        } catch (IllegalArgumentException e) {
+
+        } catch (IllegalArgumentException e) {  // Error en la id pasada
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 
@@ -75,5 +82,21 @@ public class CarController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
+    }
+
+    @DeleteMapping("delete-car/{id}")
+    public ResponseEntity<?> deleteCarById(@PathVariable Integer id){
+
+        try {
+            carService.deleteCarById(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Deleted Car with Id: " + id);
+
+        } catch (IllegalArgumentException e) { // Error en la id pasada
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+
+        } catch (Exception e){
+            log.error("Deleting car error");
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
